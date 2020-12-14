@@ -1,32 +1,31 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <imooc-header></imooc-header>
     <router-view/>
+    <imooc-footer></imooc-footer>
   </div>
 </template>
 
+<script>
+import Header from '@/components/Header.vue'
+import Footer from '@/components/Footer.vue'
+export default {
+  components: {
+    'imooc-header': Header,
+    'imooc-footer': Footer
+  }
+}
+</script>
+
 <style lang="scss">
+
+@import "assets/lib/layUI/css/layui.css";
+@import "assets/styles/global.css";
+@import "assets/lib/layUI/css/modules/layer/default/layer.css";
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscal;
   text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
