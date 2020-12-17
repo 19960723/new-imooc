@@ -35,9 +35,10 @@ class HttpRequest {
         return Promise.reject(res)
       }
     }, err => {
-        return Promise.reject(err)
+      return Promise.reject(err)
     })
   }
+
   // 创建实例
   request(options) {
     const instance = axios.create()
@@ -61,7 +62,6 @@ class HttpRequest {
       data: data
     })
   }
-
 }
 
 export default HttpRequest
