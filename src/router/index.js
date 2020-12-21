@@ -100,6 +100,15 @@ const routes = [
         component: () => import(/** center page */ '@/views/PerCenter/Child/Others')
       }
     ]
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: () => import(/** NoFound page */ '@/views/NoFound')
+  },
+  {
+    path: '*',
+    redirect: '/404'
   }
 ]
 

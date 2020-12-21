@@ -1,9 +1,20 @@
 // 封装axios的请求, 返回重新封装的数据格式
 import axios from 'axios'
+import store from '@/store'
+import pubConfig from '@/config'
+const CancelToken = axios.CancelToken
 
 class HttpRequest {
   constructor(baseUrl) {
     this.baseUrl = baseUrl
+    this.pending = {}
+  }
+
+  removePending(key, isRequest = false) {
+    if (this.pending[key] && isRequest) {
+      this.pending[key]('取消重复请求')
+    }
+    delete this.pending[key]
   }
 
   // 获取axios配置
@@ -22,6 +33,19 @@ class HttpRequest {
   interceptors(instance) {
     // 请求拦截器
     instance.interceptors.request.use(config => {
+      let isPublic = false
+      pubConfig.publicPath.map(path => {
+        isPublic = isPublic || path.test(config.url)
+      })
+      const token = store.state.token
+      if (!isPublic && token) {
+        config.headers.Authorization = 'Bearer ' + token
+      }
+      const key = config.url + '&' + config.method
+      this.removePending(key, true)
+      config.cancelToken = new CancelToken(c => {
+        this.pending[key] = c
+      })
       return config
     }, err => {
       // debugger
@@ -29,6 +53,8 @@ class HttpRequest {
     })
     // 响应请求的拦截器
     instance.interceptors.response.use(res => {
+      const key = res.config.url + '&' + res.config.method
+      this.removePending(key)
       if (res.status === 200) {
         return Promise.resolve(res.data)
       } else {

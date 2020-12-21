@@ -12,3 +12,13 @@ export const userSign = () => {
     }
   })
 }
+
+export const updateUserInfo = (data) => {
+  return new Promise((resolve, reject) => {
+    try {
+      resolve('成功')
+    } catch {
+      resolve('失败')
+    }
+  })
+}
