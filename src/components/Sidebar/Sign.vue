@@ -11,21 +11,22 @@
       </a>
       <span class="fly-signin-days">
         已连续签到
-        <cite>16</cite>天
+        <cite>{{count}}</cite>天
       </span>
     </div>
     <div class="fly-panel-main fly-signin-main">
-      <button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>
-      <span>
-        可获得
-        <cite>5</cite>飞吻
-      </span>
-
+      <template v-if="!isSign">
+        <button class="layui-btn layui-btn-danger" id="LAY_signin" @click="sign()">今日签到</button>
+        <span>
+          可获得
+          <cite>{{favs}}</cite>飞吻
+        </span>
+      </template>
       <!-- 已签到状态 -->
-      <!--
-          <button class="layui-btn layui-btn-disabled">今日已签到</button>
-          <span>获得了<cite>20</cite>飞吻</span>
-      -->
+      <template v-else>
+        <button class="layui-btn layui-btn-disabled">{{msg}}</button>
+        <span>获得了<cite>{{favs}}</cite>飞吻</span>
+      </template>
     </div>
     <sign-info @closeModel="close()" :isShow="isShow"></sign-info>
     <sign-list @closeModel="close()" :isShow="showList"></sign-list>
@@ -33,8 +34,10 @@
 </template>
 
 <script>
+import { userSign } from '@/api/user'
 import SignInfo from './SignInfo'
 import SignList from './SignList'
+import moment from 'dayjs'
 export default {
   name: 'Sign',
   components: {
@@ -43,9 +46,32 @@ export default {
   },
   data() {
     return {
+      isLogin: this.$store.state.isLogin,
       isShow: false,
       showList: false,
-      current: 0
+      isSign: false,
+      current: 0,
+      msg: '',
+      clearTime: null
+    }
+  },
+  mounted() {
+    // 判断用户的上一次签到时间与签到状态
+    // 如果用户上一次签到时间与当天的签到日期相差1天, 允许用户进行签到
+    const isSign = this.$store.state.userInfo.isSign
+    const lastSign = this.$store.state.userInfo.lastSign
+    const nowDate = moment().format('YYY-MM-DD')
+    const lastDate = moment(lastSign).format('YYY-MM-DD')
+    const diff = moment(nowDate).diff(moment(lastDate), 'day')
+    if (diff > 0 && isSign) {
+      this.isSign = false
+    } else {
+      this.isSign = isSign
+      if (diff === 0 && isSign) {
+        this.nextSign()
+      } else {
+        this.msg = '今日已签到'
+      }
     }
   },
   methods: {
@@ -58,6 +84,80 @@ export default {
     },
     showTop() {
       this.showList = true
+    },
+    sign() {
+      if (!this.isLogin) {
+        this.$pop('shake', '请先登录')
+        return
+      }
+      userSign().then((res) => {
+        const user = this.$store.state.userInfo
+        if (res.code === 200) {
+          this.isSign = true
+          user.favs = res.favs
+          user.count = res.count
+          // this.$store.commit('setUserInfo', user)
+          this.$pop('', '签到成功')
+        } else {
+          // 用户已经签到
+          this.$pop('', '您已经签到')
+        }
+      })
+    },
+    nextSign() {
+      clearInterval(this.clearTime)
+      const newDate = moment().add(1, 'day').format('YYY-MM-DD')
+      let seconds = moment(newDate + ' 00:00:00').diff(moment(), 'second')
+      // 测试用
+      let hour = Math.floor(seconds / 3600)
+      let min = Math.floor(seconds % 3600 / 60)
+      let second = seconds % 60
+      this.msg = `签到倒计时 ${hour}:${min < 10 ? '0' + min : min}:${second < 10 ? '0' + second : second}`
+      this.clearTime = setInterval(() => {
+        seconds = moment(newDate + ' 00:00:00').diff(moment(), 'second')
+        hour = Math.floor(seconds / 3600)
+        min = Math.floor(seconds % 3600 / 60)
+        second = seconds % 60
+        this.msg = `签到倒计时 ${hour}:${min < 10 ? '0' + min : min}:${second < 10 ? '0' + second : second}`
+        if (seconds <= 0) {
+          clearInterval(this.clearTime)
+          this.isSign = false
+          const user = this.$store.state.userInfo
+          user.isSign = false
+          this.$store.commit('setUserInfo', user)
+        }
+      }, 1000)
+    }
+  },
+  computed: {
+    favs() {
+      const count = parseInt(this.count)
+      let result = 0
+      if (count < 5) {
+        result = 5
+      } else if (count >= 5 && count < 15) {
+        result = 10
+      } else if (count >= 15 && count < 30) {
+        result = 15
+      } else if (count >= 30 && count < 100) {
+        result = 20
+      } else if (count >= 100 && count < 365) {
+        result = 30
+      } else if (count >= 365) {
+        result = 50
+      }
+      return result
+    },
+    count() {
+      if (this.$store.state.userInfo !== {}) {
+        if (typeof this.$store.state.userInfo.count !== 'undefined') {
+          return this.$store.state.userInfo.count
+        } else {
+          return 0
+        }
+      } else {
+        return 0
+      }
     }
   }
 }
