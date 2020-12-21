@@ -42,8 +42,8 @@
 </template>
 
 <script>
-import moment from 'moment'
-import 'moment/locale/zh-cn'
+import moment from 'dayjs'
+import 'dayjs/locale/zh-cn'
 export default {
   props: {
     isShow: {

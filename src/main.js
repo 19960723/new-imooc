@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import router from './router/permission'
 import store from './store'
 
 import Alert from '@/components/modules/Alert/index.js'

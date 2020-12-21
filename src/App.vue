@@ -18,10 +18,7 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import "assets/lib/layUI/css/layui.css";
 @import "assets/styles/global.css";
-@import "assets/lib/layUI/css/modules/layer/default/layer.css";
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

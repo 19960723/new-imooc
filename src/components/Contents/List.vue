@@ -1,70 +1,73 @@
 <template>
   <div class="fly-panel" style="margin-bottom: 0;">
     <div class="fly-panel-title fly-filter">
-      <a href class="layui-this">综合</a>
+      <a @click.prevent="search()" :class="{'layui-this': status === '' && tag === ''}">综合</a>
       <span class="fly-mid"></span>
-      <a href>未结</a>
+      <a @click.prevent="search(0)" :class="{'layui-this': status === '0'}">未结</a>
       <span class="fly-mid"></span>
-      <a href>已结</a>
+      <a @click.prevent="search(1)" :class="{'layui-this': status === '1'}">已结</a>
       <span class="fly-mid"></span>
-      <a href>精华</a>
+      <a @click.prevent="search(2)" :class="{'layui-this': status === '' && tag === '精华'}">精华</a>
       <span class="fly-filter-right layui-hide-xs">
-        <a href class="layui-this">按最新</a>
+        <a @click.prevent="search(3)" :class="{'layui-this': sort === 'created'}">按最新</a>
         <span class="fly-mid"></span>
-        <a href>按热议</a>
+        <a @click.prevent="search(4)" :class="{'layui-this': sort === 'answer'}">按热议</a>
       </span>
     </div>
-    <list-item @nextPage="nextPage" :lists="lists" :isShow="true" ></list-item>
+    <list-item @nextPage="nextPage" :isEnd="isEnd" :lists="lists" :isShow="true" ></list-item>
   </div>
 </template>
 
 <script>
+import listMix from '@/mixin/list'
 import ListItem from './ListItem'
-import { getList } from '@/api/content'
 export default {
   name: 'List',
-  data() {
-    return {
-      catalog: '',
-      sort: 'created',
-      page: 0,
-      limit: 20,
-      status: '',
-      tag: '',
-      lists: []
+  mixins: [listMix],
+  watch: {
+    current(newVal, oldVal) {
+      this.init()
+    },
+    '$route'(newVal, oldVal) {
+      this.init()
     }
   },
-  mounted() {
-    this._getLists()
-  },
   methods: {
-    _getLists() {
-      const options = {
-        catalog: this.catalog, // 帖子分类
-        isTop: 0, // 是否置顶
-        sort: this.sort, // 文章排序
-        page: this.page, // 分页
-        limit: this.limit, // 每页的数量
-        status: this.status, // 文章状态
-        tags: this.tag
+    search(val) {
+      if (typeof val === 'undefined' && this.current === '') {
+        return
       }
-      getList(options).then(res => {
-        if (res.code === 200) {
-          if (this.lists.length === 0) {
-            this.lists = res.data
-          } else {
-            this.lists = this.lists.concat(res.data)
-          }
-        }
-      }).catch(err => {
-        if (err) {
-          this.$alert(err.msg)
-        }
-      })
-    },
-    nextPage() {
-      this.page++
-      this._getLists()
+      this.current = val
+      switch (val) {
+        // 未结贴
+        case 0:
+          this.status = '0'
+          this.tag = ''
+          break
+        // 已结贴
+        case 1:
+          this.status = '1'
+          this.tag = ''
+          break
+        // 查询"精华"标签
+        case 2:
+          this.status = ''
+          this.tag = '精华'
+          break
+        // 按照时间查询
+        case 3:
+          this.sort = 'created'
+          break
+        // 按照评论数去查询
+        case 4:
+          this.sort = 'answer'
+          break
+        // 综合查询
+        default:
+          this.status = ''
+          this.tag = ''
+          this.current = ''
+      }
     }
   },
   components: {
@@ -74,4 +77,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fly-panel-title {
+  a{
+    cursor: pointer;
+  }
+}
 </style>
