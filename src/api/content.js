@@ -8,3 +8,11 @@ import qs from 'qs'
 export const getList = (options) => {
   return axios.get('/public/list?' + qs.stringify(options))
 }
+
+export const uploadImg = (formData) => {
+  return axios.post('/content/upload', formData)
+}
+
+export const addPost = (data) => {
+  return axios.post('/content/add', { ...data })
+}

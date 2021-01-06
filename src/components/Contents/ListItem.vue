@@ -4,7 +4,7 @@
       <li v-for="(item, index) in items" :key="'listitem-' + index">
         <a href="user/home.html" class="fly-avatar">
           <img
-            src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg"
+            :src="item.uid.avatar"
             alt="a"
           />
         </a>
@@ -14,8 +14,8 @@
         </h2>
         <div class="fly-list-info">
           <a href="user/home.html" link>
-            <cite>{{item.uid.name}}</cite>
-            <i class="layui-badge fly-badge-vip" v-if="item.uid.isVip">VIP{{item.uid.isVip}}</i>
+            <cite>{{item.uid.username}}</cite>
+            <i class="layui-badge fly-badge-vip" v-if="item.uid.isVip > 0">VIP{{item.uid.isVip}}</i>
           </a>
           <span>{{item.created | moment}}</span>
 
@@ -43,7 +43,9 @@
 
 <script>
 import moment from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
+moment.extend(relativeTime)
 export default {
   props: {
     isShow: {
@@ -66,7 +68,7 @@ export default {
       this.lists.map(item => {
         switch (item.catalog) {
           case 'ask':
-            item.catalog = '提供'
+            item.catalog = '提问'
             break
           case 'share':
             item.catalog = '分享'
@@ -95,7 +97,7 @@ export default {
         return moment(date).format('YYYY-MM-DD')
       } else {
         // 1小时, xx小时前, x天前
-        return moment(date).from(moment())
+        return moment(date).locale('zh-cn').from(moment())
       }
     }
   },
@@ -110,5 +112,8 @@ export default {
 <style lang="scss" scoped>
 .laypage-next{
   cursor: pointer;
+}
+.nomore{
+  padding: 10px 0;
 }
 </style>

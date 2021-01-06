@@ -1,6 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import content from './modules/content'
+import login from './modules/login'
+import user from './modules/user'
+
+const Home = () => import(/** home page */ '@/views/Home')
+const Index = () => import(/** Index page */ '@/views/Index')
+const Template = () => import(/** template page */ '@/views/Index/template')
+const NoFound = () => import(/** NoFound page */ '@/views/NoFound')
 
 Vue.use(VueRouter)
 
@@ -12,99 +19,28 @@ const routes = [
       {
         path: '',
         name: 'index',
-        component: () => import(/** index page */ '@/views/Index')
+        component: Index,
+        meta: {
+          title: '首页'
+        }
       },
       {
         path: '/index/:catalog',
         name: 'catalog',
-        component: () => import(/** template page */ '@/views/Index/template')
+        component: Template
       }
     ]
   },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import(/** login page */ '@/views/Login')
-  },
-  {
-    path: '/register',
-    name: 'register',
-    component: () => import(/** register page */ '@/views/Register')
-  },
-  {
-    path: '/forget',
-    name: 'forget',
-    component: () => import(/** forget page */ '@/views/Forget')
-  },
-  {
-    path: '/center',
-    component: () => import(/** center page */ '@/views/PerCenter'),
-    meta: { requiresAuth: true },
-    // linktActiveClass: 'layui-this',
-    children: [
-      {
-        path: '',
-        name: 'center',
-        component: () => import(/** center page */ '@/views/PerCenter/Child/Center')
-      },
-      {
-        path: 'set',
-        component: () => import(/** center page */ '@/views/PerCenter/Child/Setting'),
-        children: [
-          {
-            path: '',
-            name: 'info',
-            component: () => import(/** SetCom/info page */ '@/views/PerCenter/Child/SetCom/info')
-          },
-          {
-            path: 'avatar',
-            name: 'avatar',
-            component: () => import(/** SetCom/avatar page */ '@/views/PerCenter/Child/SetCom/avatar')
-          },
-          {
-            path: 'passwd',
-            name: 'passwd',
-            component: () => import(/** SetCom/passwd page */ '@/views/PerCenter/Child/SetCom/passwd')
-          },
-          {
-            path: 'account',
-            name: 'account',
-            component: () => import(/** SetCom/account page */ '@/views/PerCenter/Child/SetCom/account')
-          }
-        ]
-      },
-      {
-        path: 'posts',
-        component: () => import(/** center page */ '@/views/PerCenter/Child/Posts'),
-        children: [
-          {
-            path: '',
-            name: 'mypost',
-            component: () => import(/** center page */ '@/views/PerCenter/Child/PostCom/mypost')
-          },
-          {
-            path: 'collection',
-            name: 'mycollection',
-            component: () => import(/** center page */ '@/views/PerCenter/Child/PostCom/collection')
-          }
-        ]
-      },
-      {
-        path: 'msg',
-        name: 'msg',
-        component: () => import(/** center page */ '@/views/PerCenter/Child/Msg')
-      },
-      {
-        path: 'others',
-        name: 'others',
-        component: () => import(/** center page */ '@/views/PerCenter/Child/Others')
-      }
-    ]
-  },
+  ...content,
+  ...login,
+  ...user,
   {
     path: '/404',
     name: '404',
-    component: () => import(/** NoFound page */ '@/views/NoFound')
+    component: NoFound,
+    meta: {
+      title: '404'
+    }
   },
   {
     path: '*',

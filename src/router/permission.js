@@ -2,6 +2,9 @@ import router from './index'
 import store from '@/store'
 
 router.beforeEach((to, from, next) => {
+  if (to.meta.title) { // 路由变化 修改页面 title
+    document.title = to.meta.title
+  }
   const token = localStorage.getItem('token')
   const userInfo = JSON.parse(localStorage.getItem('userInfo'))
   if (token !== '' && token !== null) {

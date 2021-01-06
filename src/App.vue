@@ -20,6 +20,7 @@ export default {
 <style lang="scss">
 @import "assets/styles/global.css";
 @import "assets/styles/utilities.scss";
+@import 'assets/images/layui-layer/layer.css';
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
