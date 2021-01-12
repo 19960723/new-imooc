@@ -48,3 +48,7 @@ modal(模态框)
   1. 在该组件(mounted)监听 body的点击事件
   2. 在该组件(beforeDestroy) 销毁监听
   3. 判断点击的是否在模态框内 或指定的视图 (Dom contains(e.target()) 比较dom是否包含) , 如果不是则关闭模态框(closeModal)
+
+# Vue
+$set
+  向一对象加了一个属性, 视图却没有更新, 使用 this.$set()  方法添加

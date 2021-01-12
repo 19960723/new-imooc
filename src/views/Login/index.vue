@@ -147,8 +147,9 @@ export default {
         sid: this.$store.state.sid,
         code: this.code
       }).then(res => {
-        // 储存用户的登录名
         if (res.code === 200) {
+          // 储存用户的登录名
+          res.data.email = this.email
           this.$store.commit('setUserInfo', res.data)
           this.$store.commit('setIsLogin', true)
           this.$store.commit('setToken', res.token)
@@ -158,7 +159,8 @@ export default {
           requestAnimationFrame(() => {
             this.$refs.observer.reset()
           })
-          this.$router.push({ name: 'index' })
+          const path = this.$route.query.redirect || { name: 'index' }
+          this.$router.push(path)
         } else {
           this.$refs.codefield.setErrors([res.msg])
         }

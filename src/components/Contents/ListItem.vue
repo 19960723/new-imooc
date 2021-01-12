@@ -2,21 +2,21 @@
   <div>
     <ul class="fly-list">
       <li v-for="(item, index) in items" :key="'listitem-' + index">
-        <a href="user/home.html" class="fly-avatar">
+        <router-link class="fly-avatar" :to="{name: 'home', params: { uid: item.uid._id }}">
           <img
             :src="item.uid.avatar"
             alt="a"
           />
-        </a>
+        </router-link>
         <h2>
           <a class="layui-badge">{{item.catalog}}</a>
-          <a href="jie/detail.html">{{item.title}}</a>
+          <router-link :to="{name: 'detail', params: {tid: item._id}}">{{item.title}}</router-link>
         </h2>
         <div class="fly-list-info">
-          <a href="user/home.html" link>
+          <router-link :to="{name: 'home', params: { uid: item.uid._id }}" link>
             <cite>{{item.uid.username}}</cite>
             <i class="layui-badge fly-badge-vip" v-if="item.uid.isVip > 0">VIP{{item.uid.isVip}}</i>
-          </a>
+          </router-link>
           <span>{{item.created | moment}}</span>
 
           <span class="fly-list-kiss layui-hide-xs" title="悬赏飞吻">
@@ -42,10 +42,6 @@
 </template>
 
 <script>
-import moment from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/zh-cn'
-moment.extend(relativeTime)
 export default {
   props: {
     isShow: {
@@ -60,8 +56,6 @@ export default {
       default: () => [],
       type: Array
     }
-  },
-  mounted() {
   },
   computed: {
     items() {
@@ -88,17 +82,6 @@ export default {
         }
       })
       return this.lists
-    }
-  },
-  filters: {
-    moment(date) {
-      if (moment(date).isBefore(moment().subtract(7, 'days'))) {
-        // 超过7天, 显示日期
-        return moment(date).format('YYYY-MM-DD')
-      } else {
-        // 1小时, xx小时前, x天前
-        return moment(date).locale('zh-cn').from(moment())
-      }
     }
   },
   methods: {

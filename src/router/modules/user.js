@@ -13,12 +13,14 @@ const PostComCollection = () => import(/** collection page */ '@/views/PerCenter
 const Msg = () => import(/** msg page */ '@/views/PerCenter/Child/Msg')
 const Others = () => import(/** Others page */ '@/views/PerCenter/Child/Others')
 
+const User = () => import(/** User page */ '@/views/PerCenter/Child/User')
+
 export default [
   {
     path: '/center',
     component: PerCenter,
     meta: { requiresAuth: true },
-    // linktActiveClass: 'layui-this',
+    linktActiveClass: 'layui-this',
     children: [
       {
         path: '',
@@ -82,5 +84,11 @@ export default [
         meta: { title: '其它设置' }
       }
     ]
+  },
+  {
+    path: '/user/:uid',
+    name: 'home',
+    props: true,
+    component: User
   }
 ]

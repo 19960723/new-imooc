@@ -26,7 +26,7 @@
         <!-- 未登入的状态 -->
         <template v-if="!isLogin">
           <li class="layui-nav-item">
-            <router-link class="iconfont icon-touxiang layui-hide-xs" to="/user123"></router-link>
+            <router-link class="iconfont icon-touxiang layui-hide-xs" :to="{name: 'login'}"></router-link>
           </li>
           <li class="layui-nav-item">
             <router-link :to="{name: 'login'}">登入</router-link>
@@ -55,15 +55,15 @@
         <!-- 登入后的状态 -->
         <template v-else>
           <li class="layui-nav-item" @mouseover="show()" @mouseleave="hide()">
-            <a class="fly-nav-avatar" href="javascript:;">
-              <cite class="layui-hide-xs">{{userInfo.name}}</cite>
-              <i class="layui-badge fly-badge-vip layui-hide-xs" v-show="userInfo.isVip">{{userInfo.isVip}}</i>
+            <router-link class="fly-nav-avatar" :to="{name: 'center'}">
+              <cite class="layui-hide-xs">{{userInfo.username}}</cite>
+              <i class="layui-badge fly-badge-vip layui-hide-xs" v-show="userInfo.isVip !== '0'">Vip{{userInfo.isVip}}</i>
               <img :src="userInfo.avatar">
-            </a>
+            </router-link>
             <dl class="layui-nav-child layui-anim layui-anim-upbit" :class="{'layui-show': isHover}">
               <dd><router-link :to="{name: 'info'}"><i class="layui-icon">&#xe620;</i>基本设置</router-link></dd>
               <dd><router-link :to="{name: 'msg'}"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</router-link></dd>
-              <dd><router-link :to="{name: 'index'}"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</router-link></dd>
+              <dd><router-link :to="{name: 'home', params: {uid: userInfo._id}}"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</router-link></dd>
               <hr style="margin: 5px 0;">
               <dd><a href="javascript: void(0)" style="text-align: center;" @click="logout()">退出</a></dd>
             </dl>

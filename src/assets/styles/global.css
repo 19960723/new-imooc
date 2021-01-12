@@ -2024,3 +2024,9 @@ body .fly-user-main {
   overflow: hidden;
   height: 0;
 }
+.link {
+  color: #01aaed;
+}
+.success {
+  color: #5fb878;
+}

@@ -6,8 +6,8 @@
         <div class="panel border">
           <div class="title">我的会员信息</div>
           <div class="content fly-signin">
-            <p>积分经验值：<cite>60</cite></p>
-            <p>您当前为: <cite>非VIP</cite></p>
+            <p>积分经验值：<cite>{{userInfo.favs}}</cite></p>
+            <p>您当前为: <cite>{{userInfo.isVip === '0' ? '非VIP' : 'VIP' + userInfo.isVip }}</cite></p>
           </div>
         </div>
       </div>
@@ -105,6 +105,11 @@ export default {
   },
   components: {
     Sign
+  },
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo
+    }
   }
 }
 </script>

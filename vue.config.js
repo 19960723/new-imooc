@@ -1,6 +1,6 @@
 module.exports = {
   devServer: {
     // mock server
-    proxy: 'http://localhost:3800'
+    proxy: 'http://192.168.1.114:3800'
   }
 }

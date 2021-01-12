@@ -1,24 +1,28 @@
-// import store from '@/store'
-// const headers = {
-//   Authorization: 'Bearer ' + store.state.token,
-//   'Content-Type': 'application/json'
-// }
+import axios from '@/utils/request'
+import qs from 'qs'
+
+// 用户签到
 export const userSign = () => {
-  return new Promise((resolve, reject) => {
-    try {
-      resolve('成功')
-    } catch {
-      resolve('失败')
-    }
-  })
+  return axios.get('/user/fav')
+}
+// 更新用户基本信息
+export const updateUserInfo = (data) => {
+  return axios.post('/user/basic', data)
+}
+// 获取用户的基本信息
+export const getInfo = (data) => {
+  return axios.get('/user/info?' + qs.stringify(data))
+}
+// 修改密码
+export const changePasswd = (data) => {
+  return axios.post('/user/changePassword', { ...data })
+}
+// 获取用户发帖记录
+export const getPostListByUid = (data) => {
+  return axios.get('/user/mypost?' + qs.stringify(data))
 }
 
-export const updateUserInfo = (data) => {
-  return new Promise((resolve, reject) => {
-    try {
-      resolve('成功')
-    } catch {
-      resolve('失败')
-    }
-  })
+// 删除发帖纪录
+export const deletePostByUid = (id) => {
+  return axios.get('/user/deletePost?' + qs.stringify(id))
 }
