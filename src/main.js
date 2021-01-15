@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router/permission'
 import store from './store'
 import filters from '@/utils/filter'
+import directives from '@/utils/directives'
 import '@/utils/veevalidate'
 
 import Alert from '@/components/modules/Alert/index.js'
@@ -12,6 +13,9 @@ Vue.use(Pop)
 
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
+})
+Object.keys(directives).forEach(key => {
+  Vue.directive(key, directives[key])
 })
 
 Vue.config.productionTip = false

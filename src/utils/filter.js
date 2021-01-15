@@ -1,4 +1,5 @@
 // 全局 filter 定义
+import config from '@/config'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
@@ -23,7 +24,16 @@ const hours = (date) => {
   }
 }
 
+const avatar = (date) => {
+  if (date.indexOf('http') !== -1) {
+    return date
+  } else {
+    return `${config.baseUrl.dev}${date}`
+  }
+}
+
 export default {
   moment,
-  hours
+  hours,
+  avatar
 }

@@ -67,8 +67,57 @@
             <legend style="margin-left: 0">回帖</legend>
           </fieldset>
           <ul class="jieda" id="jieda">
+            <li class="jieda-daan" v-for="(item, index) in comments" :key="'comments' + index">
+              <div class="detail-about detail-about-reply">
+                <a class="fly-avatar" href>
+                  <img :src="item.cuid ? item.cuid.avatar : 'https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg'" alt=" " />
+                </a>
+                <div class="fly-detail-user">
+                  <router-link class="fly-link" :to="{name: 'home', params: {uid: item.cuid ? item.cuid._id : ''}}">
+                    <cite>{{item.cuid ? item.cuid.username :'imooc'}}</cite>
+                    <i
+                      v-if="item.cuid && item.cuid.isVip !=='0'?item.cuid.isVip : false "
+                      class="layui-badge fly-badge-vip"
+                    >VIP{{item.cuid.isVip}}</i>
+                  </router-link>
+                  <span v-if="index === 0">(楼主)</span>
+                </div>
+                <div class="detail-hits">
+                  <span>{{item.created | moment}}</span>
+                </div>
+                <i class="iconfont icon-caina" title="最佳答案" v-show="item.isBest === '1'"></i>
+              </div>
+              <div class="detail-body jieda-body photos" v-richtext="item.content"></div>
+              <div class="jieda-reply">
+                <span
+                  class="jieda-zan"
+                  :class="{'zanok' :item.handed === '1'}"
+                  type="zan"
+                  @click="hands(item)"
+                >
+                  <i class="iconfont icon-zan"></i>
+                  <em>{{item.hands}}</em>
+                </span>
+                <span type="reply" @click="reply(item)">
+                  <i class="iconfont icon-svgmoban53"></i>
+                  回复
+                </span>
+                <div class="jieda-admin">
+                  <span
+                    v-show="page.isEnd ==='0' && user && item.cuid._id === user._id"
+                    @click="editComment(item)"
+                  >编辑</span>
+                  <!-- <span type="del">删除</span> -->
+                  <span
+                    class="jieda-accept"
+                    v-show="page.isEnd ==='0' && user && page.uid && page.uid._id === user._id"
+                    @click="setBest(item)"
+                  >采纳</span>
+                </div>
+              </div>
+            </li>
             <!-- 无数据时 -->
-            <li class="fly-none">消灭零回复</li>
+            <li class="fly-none" v-if="comments.length === 0">消灭零回复</li>
           </ul>
           <div class="layui-form layui-form-pane">
             <validation-observer ref="observer" v-slot="{ validate }">
@@ -119,6 +168,8 @@ import Ads from '@/components/Sidebar/Ads'
 import Links from '@/components/Sidebar/Links'
 import Editor from '../modules/Editor'
 import { getDetail } from '@/api/content'
+import { addComment, getComments, setHands, updateComment, setCommentBest } from '@/api/comments'
+import { addCollect } from '@/api/user'
 import { escapeHtml } from '@/utils/escapeHtml'
 import CodeMix from '@/mixin/code'
 
@@ -127,12 +178,16 @@ export default {
   mixins: [CodeMix],
   data() {
     return {
+      total: 0,
       page: {},
+      current: 0,
+      limit: 10,
       editInfo: {
         content: '',
         code: '',
         sid: ''
-      }
+      },
+      comments: []
     }
   },
   props: ['tid'],
@@ -159,6 +214,7 @@ export default {
   },
   mounted() {
     this.getPostDetail()
+    this.getCommentsList()
   },
   methods: {
     getPostDetail() {
@@ -169,7 +225,35 @@ export default {
       })
     },
     getCommentsList() {
-
+      getComments({
+        tid: this.tid,
+        page: this.current,
+        limit: this.limit
+      }).then(res => {
+        if (res.code === 200) {
+          this.comments = res.data
+          this.total = res.total
+        }
+      })
+    },
+    setCollect() {
+      // 设置收藏 & 取消收藏
+      const isLogin = this.$store.state.isLogin
+      if (isLogin) {
+        const collect = {
+          tid: this.tid,
+          title: this.page.title,
+          isFav: this.page.isFav ? 1 : 0
+        }
+        addCollect(collect).then(res => {
+          if (res.code === 200) {
+            this.page.isFav = !this.page.isFav
+            this.$pop('', this.page.isFav ? '设置收藏成功' : '取消收藏成功')
+          }
+        })
+      } else {
+        this.$pop('shake', '请先登录后再进行收藏!')
+      }
     },
     addContent(val) {
       this.editInfo.content = val
@@ -203,17 +287,114 @@ export default {
         isVip: user.isVip
       }
       if (typeof this.editInfo.cid !== 'undefined' && this.editInfo.cid !== '') {
-        // const obj = { ...this.editInfo }
-        // delete obj['item']
+        // 编辑回复
+        const obj = { ...this.editInfo }
+        delete obj.item
         // 判断用户是否修改了内容
         if (this.editInfo.content === this.editInfo.item.content) {
           this.$pop('shake', '确定编辑了内容~~~')
           return
         }
         // 更新评论
-        console.log(this.editInfo)
-        console.log(cuid)
+        updateComment(obj).then(res => {
+          const temp = this.editInfo.item
+          temp.content = this.editInfo.content
+          this.$pop('', '更新评论成功')
+          this.code = ''
+          this.editInfo.content = ''
+          // 方法1: 只用更新特定一条的content created $set
+          // 方法2: 更新整个数组中的这一条
+          this.comments.splice(
+            this.comments.indexOf(this.editInfo.item),
+            1,
+            temp
+          )
+        })
+        return
       }
+      // 添加评论
+      addComment(this.editInfo).then(res => {
+        if (res.code === 200) {
+          this.$pop('', '发表评论成功')
+          // 发表评论成功后, 清空回复内容
+          this.code = ''
+          this.editInfo.content = ''
+          // 添加新的评论到评论列表
+          res.data.cuid = cuid
+          this.comments.push(res.data)
+          requestAnimationFrame(() => {
+            this.$refs.observer && this.$refs.observer.reset()
+          })
+          // 刷新图形验证码
+          this._getCode()
+        } else {
+          this.$alert(res.msg)
+        }
+      })
+    },
+    hands(item) {
+      if (!this.$store.state.isLogin) {
+        this.$pop('shake', '请先登录账号')
+        return
+      }
+      if (item.handed === '1') {
+        this.$pop('shake', '已经点赞了, 不用重复点赞')
+        return
+      }
+      setHands({ cid: item._id }).then(res => {
+        if (res.code === 200) {
+          this.$pop('', '点赞成功')
+          item.handed = '1'
+          item.hands += 1
+        } else {
+          this.$pop('shake', res.msg)
+        }
+      })
+    },
+    reply(item) {
+      // 插入@ + username 到 content
+      // 滚动页面到输入框
+      // focus 输入框
+      const reg = /^@[\S]+/g
+      if (this.editInfo.content) {
+        if (reg.test(this.editInfo.content)) {
+          this.editInfo.content = this.editInfo.content.replace(
+            reg,
+            '@' + item.cuid.username + '  '
+          )
+        } else {
+          if (this.editInfo.content !== '') {
+            // 非空情况
+            this.editInfo.content = `@${item.cuid.username} ${this.editInfo.content}`
+          }
+        }
+      } else {
+        // 评论框为空
+        this.editInfo.content = '@' + item.cuid.username + '  '
+      }
+      // 动态滚动到输入框的位置, 并且进行focus
+      document.getElementById('edit').focus()
+    },
+    editComment(item) {
+      this.editInfo.content = item.content
+      document.getElementById('edit').focus()
+      // 确定需要去编辑的记录
+      this.editInfo.cid = item._id
+      this.editInfo.item = item
+    },
+    setBest(item) {
+      this.$confirm('确定采纳为最佳答案吗?', () => {
+        setCommentBest({
+          cid: item._id,
+          tid: this.tid
+        }).then(res => {
+          if (res.code === 200) {
+            this.$pop('', '设置最佳答案成功')
+            item.isBest = '1'
+            this.page.isEnd = '1'
+          }
+        })
+      }, () => {})
     }
   }
 }
